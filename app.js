@@ -1,14 +1,14 @@
-// import express library
+// connect
 const express = require('express');
+
+// import helmet middleware to set security headers for API
+const helmet = require('helmet');
 
 // create a server
 const app = express();
 
 // specify port
 const { PORT = 3000 } = process.env;
-
-// import helmet middleware to set security headers for API
-const helmet = require('helmet');
 
 app.use(helmet());
 
