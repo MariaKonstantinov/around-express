@@ -21,6 +21,8 @@ This is a Back-End project with no Front-End part. In this project we are requir
 
 - Sprint 1 => Set up an initial server that handles requests and sends responds, error handling, routing files.
 
+- Sprint 1 => Connect to MongoDB. Create Schemas and Models for user and card. Create controllers and routes for user and card. Create test user in Postman. Implement temporary authorization solution. Add error handling logic. Add other routes.
+
 **:four_leaf_clover: Instructions**
 
 - npm run start - to launch server

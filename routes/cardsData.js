@@ -1,9 +1,19 @@
 const express = require('express');
 
-const router = express.Router();
+const cardsRouter = express.Router();
 
-const { getCards } = require('../controllers/cardsController');
+const {
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
+} = require('../controllers/cardsController');
 
-router.get('/cards', getCards);
+cardsRouter.get('/cards', getCards);
+cardsRouter.post('/cards', createCard);
+cardsRouter.delete('/cards/:cards_id', deleteCard);
+cardsRouter.put('/cards/:cards_id/likes', likeCard);
+cardsRouter.delete('/:id/likes', dislikeCard);
 
-module.exports = router;
+module.exports = cardsRouter;
