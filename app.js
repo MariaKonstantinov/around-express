@@ -43,9 +43,9 @@ const cardsRouter = require('./routes/cardsData');
 
 app.use(cardsRouter);
 
-const notFoundRouter = require('./routes/notFoundRoute');
+const { errorHandler } = require('./errors/customErrors');
 
-app.use(notFoundRouter);
+app.use(errorHandler);
 
 // connect port
 app.listen(PORT, () => {

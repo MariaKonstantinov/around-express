@@ -1,18 +1,13 @@
 // add Card model
 const Card = require('../models/card');
 
-const { ERROR_MESSAGE } = require('../utils/constants');
-
-const {
-  createBadReqError,
-  createNotFoundError,
-} = require('../errors/customErrors');
+const { errorHandler } = require('../errors/customErrors');
 
 // get all cards
 const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
-      res.status(200).send({ data: cards });
+      res.send({ data: cards });
     })
     .catch(next);
 };
@@ -23,45 +18,41 @@ const createCard = (req, res, next) => {
 
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(201).send({ data: card }))
-    .catch((error) => createBadReqError(error, ERROR_MESSAGE.INCORRECT_DATA))
+    .then((card) => res.send({ data: card }))
     .catch(next);
 };
 
 // delete a card
 const deleteCard = (req, res, next) => {
-  const { cardId } = req.params;
+  const { cards_id } = req.params;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findByIdAndRemove(cards_id)
     .orFail()
     .then((card) => res.send({ data: card }))
-    .catch((error) => createNotFoundError(error, ERROR_MESSAGE.NOT_FOUND))
     .catch(next);
 };
 
 // like a card
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params._id,
+    cards_id,
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
     .then((likes) => res.send({ data: likes }))
-    .catch((error) => createNotFoundError(error, ERROR_MESSAGE.NOT_FOUND))
     .catch(next);
 };
 
 // dislike a card
 const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params._id,
+    cards_id,
     { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
     .then((likes) => res.send({ data: likes }))
-    .catch((error) => createNotFoundError(error, ERROR_MESSAGE.NOT_FOUND))
     .catch(next);
 };
 

@@ -1,25 +1,19 @@
-const BadReqError = require('./BadReqError');
-const NotFoundError = require('./NotFoundError');
+const { ERROR_CODE } = require('../utils/constants');
 
-const createBadReqError = (error, message) => {
-  throw new BadReqError({ message: `${message} : ${error.message}` });
-};
-
-const createNotFoundError = (error, message) => {
-  throw new NotFoundError(`${message} : ${error.message}`);
-};
-
-const errorHandler = (error, messageBadReq, messageNotFound) => {
+const errorHandler = (error, req, res, next) => {
   if (error.name === 'CastError') {
-    createNotFoundError(error, messageNotFound);
+    res.status(ERROR_CODE.INCORRECT_DATA).send({ message: 'Incorrect ID' });
+  } else if (error.name === 'ValidationError') {
+    res.status(ERROR_CODE.INCORRECT_DATA).send({ message: 'Invalid data' });
+  } else if (error.name === 'DocumentNotFoundError') {
+    res.status(ERROR_CODE.NOT_FOUND).send({ message: 'Data not found' });
+  } else {
+    res.status(ERROR_CODE.INTERNAL_SERVER_ERROR).send({ message: 'Error' });
   }
-
-  createBadReqError(error, messageBadReq);
+  next();
 };
 
 module.exports = {
-  createBadReqError,
-  createNotFoundError,
   errorHandler,
 };
 
