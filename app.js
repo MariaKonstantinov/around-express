@@ -6,6 +6,17 @@ const bodyParser = require('body-parser');
 // import helmet middleware to set security headers for API
 const helmet = require('helmet');
 
+// error handling
+const { ERROR_CODE, ERROR_MESSAGE } = require('./utils/constants');
+
+// connect routers
+const usersRouter = require('./routes/users');
+
+const cardsRouter = require('./routes/cards');
+
+// rate-limit to limit the number of requests to protect the recourse against DoS attacks
+const { apiLimiter } = require('./utils/rateLimit');
+
 // create a server
 const app = express();
 
@@ -19,33 +30,42 @@ mongoose.connect('mongodb://localhost:27017/aroundb', {
 // specify port
 const { PORT = 3000 } = process.env;
 
+// APP USE
 app.use(helmet());
 
 app.use(bodyParser.json());
 
+app.use(apiLimiter);
+
 // temporary authorization middleware
-app.use((req, _res, next) => {
+app.use((req, res, next) => {
   req.user = {
     _id: '64cbc5c7be3cf4a6940b524a', // the _id of the test user
   };
 
-  console.log(req.user._id);
-
   next();
 });
 
-// connect routers
-const usersRouter = require('./routes/usersData');
+// error handling
+app.use((error, req, res, next) => {
+  if (error.status !== ERROR_CODE.INTERNAL_SERVER_ERROR) {
+    res.status(error.status).send({ message: error.message });
+    return;
+  }
+  res
+    .status(error.status)
+    .send({ message: `${ERROR_MESSAGE.INTERNAL_SERVER_ERROR}` });
+  next();
+});
 
+app.use((req, res) => {
+  res.status(ERROR_CODE.NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND });
+});
+
+// routers
 app.use(usersRouter);
 
-const cardsRouter = require('./routes/cardsData');
-
 app.use(cardsRouter);
-
-const { errorHandler } = require('./errors/customErrors');
-
-app.use(errorHandler);
 
 // connect port
 app.listen(PORT, () => {

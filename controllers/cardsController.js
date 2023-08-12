@@ -1,7 +1,7 @@
 // add Card model
 const Card = require('../models/card');
 
-const { errorHandler } = require('../errors/customErrors');
+const { ERROR_CODE, ERROR_MESSAGE } = require('../utils/constants');
 
 // get all cards
 const getCards = (req, res, next) => {
@@ -9,16 +9,30 @@ const getCards = (req, res, next) => {
     .then((cards) => {
       res.send({ data: cards });
     })
+    .catch(() => {
+      res
+        .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+        .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+    })
     .catch(next);
 };
 
 // post a card
 const createCard = (req, res, next) => {
-  console.log(req.user._id);
-
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res
+          .status(ERROR_CODE.INCORRECT_DATA)
+          .send(ERROR_MESSAGE.INCORRECT_DATA);
+      } else {
+        res
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+      }
+    })
     .catch(next);
 };
 
@@ -29,11 +43,27 @@ const deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(cards_id)
     .orFail()
     .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(ERROR_CODE.INCORRECT_DATA)
+          .send(ERROR_MESSAGE.INCORRECT_DATA);
+      }
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+      } else {
+        res
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+      }
+    })
     .catch(next);
 };
 
 // like a card
 const likeCard = (req, res, next) => {
+  const { cards_id } = req.params;
+
   Card.findByIdAndUpdate(
     cards_id,
     { $addToSet: { likes: req.user._id } },
@@ -41,11 +71,27 @@ const likeCard = (req, res, next) => {
   )
     .orFail()
     .then((likes) => res.send({ data: likes }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(ERROR_CODE.INCORRECT_DATA)
+          .send(ERROR_MESSAGE.INCORRECT_DATA);
+      }
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+      } else {
+        res
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+      }
+    })
     .catch(next);
 };
 
 // dislike a card
 const dislikeCard = (req, res, next) => {
+  const { cards_id } = req.params;
+
   Card.findByIdAndUpdate(
     cards_id,
     { $pull: { likes: req.user._id } },
@@ -53,6 +99,20 @@ const dislikeCard = (req, res, next) => {
   )
     .orFail()
     .then((likes) => res.send({ data: likes }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(ERROR_CODE.INCORRECT_DATA)
+          .send(ERROR_MESSAGE.INCORRECT_DATA);
+      }
+      if (err.name === 'DocumentNotFoundError') {
+        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+      } else {
+        res
+          .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
+          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+      }
+    })
     .catch(next);
 };
 
