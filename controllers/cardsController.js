@@ -4,7 +4,7 @@ const Card = require('../models/card');
 const { ERROR_CODE, ERROR_MESSAGE } = require('../utils/constants');
 
 // get all cards
-const getCards = (req, res, next) => {
+const getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       res.send({ data: cards });
@@ -12,13 +12,12 @@ const getCards = (req, res, next) => {
     .catch(() => {
       res
         .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-        .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
-    })
-    .catch(next);
+        .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+    });
 };
 
 // post a card
-const createCard = (req, res, next) => {
+const createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
@@ -26,18 +25,17 @@ const createCard = (req, res, next) => {
       if (err.name === 'ValidationError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 // delete a card
-const deleteCard = (req, res, next) => {
+const deleteCard = (req, res) => {
   const { cards_id } = req.params;
 
   Card.findByIdAndRemove(cards_id)
@@ -47,21 +45,22 @@ const deleteCard = (req, res, next) => {
       if (err.name === 'CastError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       }
       if (err.name === 'DocumentNotFoundError') {
-        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+        res
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: ERROR_MESSAGE.NOT_FOUND });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 // like a card
-const likeCard = (req, res, next) => {
+const likeCard = (req, res) => {
   const { cards_id } = req.params;
 
   Card.findByIdAndUpdate(
@@ -75,21 +74,22 @@ const likeCard = (req, res, next) => {
       if (err.name === 'CastError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       }
       if (err.name === 'DocumentNotFoundError') {
-        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+        res
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: ERROR_MESSAGE.NOT_FOUND });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 // dislike a card
-const dislikeCard = (req, res, next) => {
+const dislikeCard = (req, res) => {
   const { cards_id } = req.params;
 
   Card.findByIdAndUpdate(
@@ -103,17 +103,18 @@ const dislikeCard = (req, res, next) => {
       if (err.name === 'CastError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       }
       if (err.name === 'DocumentNotFoundError') {
-        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+        res
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: ERROR_MESSAGE.NOT_FOUND });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 module.exports = {

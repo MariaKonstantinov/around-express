@@ -4,40 +4,40 @@ const User = require('../models/user');
 const { ERROR_CODE, ERROR_MESSAGE } = require('../utils/constants');
 
 // get all users
-const getUsers = (req, res, next) => {
+const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
     .catch(() => {
       res
         .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-        .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
-    })
-    .catch(next);
+        .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
+    });
 };
 
 // get user by id
-const getUserById = (req, res, next) => {
+const getUserById = (req, res) => {
   User.findOne({ _id: req.params.user_id })
     .orFail()
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+        res
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: ERROR_MESSAGE.NOT_FOUND });
       } else if (err.name === 'CastError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 // create a new user
-const createUser = (req, res, next) => {
+const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
@@ -46,18 +46,17 @@ const createUser = (req, res, next) => {
       if (err.name === 'ValidationError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 // update user profile
-const updateUser = (req, res, next) => {
+const updateUser = (req, res) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -72,26 +71,27 @@ const updateUser = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+        res
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: ERROR_MESSAGE.NOT_FOUND });
       } else if (err.name === 'CastError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       } else if (err.name === 'ValidationError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 // update user avatar
-const updateUserAvatar = (req, res, next) => {
+const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -106,22 +106,23 @@ const updateUserAvatar = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        res.status(ERROR_CODE.NOT_FOUND).send(ERROR_MESSAGE.NOT_FOUND);
+        res
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: ERROR_MESSAGE.NOT_FOUND });
       } else if (err.name === 'CastError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       } else if (err.name === 'ValidationError') {
         res
           .status(ERROR_CODE.INCORRECT_DATA)
-          .send(ERROR_MESSAGE.INCORRECT_DATA);
+          .send({ message: ERROR_MESSAGE.INCORRECT_DATA });
       } else {
         res
           .status(ERROR_CODE.INTERNAL_SERVER_ERROR)
-          .send(ERROR_MESSAGE.INTERNAL_SERVER_ERROR);
+          .send({ message: ERROR_MESSAGE.INTERNAL_SERVER_ERROR });
       }
-    })
-    .catch(next);
+    });
 };
 
 module.exports = {

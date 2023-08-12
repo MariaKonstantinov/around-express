@@ -1,9 +1,9 @@
-// connect
+// IMPORTS
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-// import helmet middleware to set security headers for API
+// helmet middleware to set security headers for API
 const helmet = require('helmet');
 
 // error handling
@@ -30,7 +30,7 @@ mongoose.connect('mongodb://localhost:27017/aroundb', {
 // specify port
 const { PORT = 3000 } = process.env;
 
-// APP USE
+// APP USE -------------------------------------------->
 app.use(helmet());
 
 app.use(bodyParser.json());
@@ -46,6 +46,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// routers
+app.use(usersRouter);
+
+app.use(cardsRouter);
+
+// middleware for handling an unknown route
+app.use((req, res) => {
+  res.status(ERROR_CODE.NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND });
+});
+
 // error handling
 app.use((error, req, res, next) => {
   if (error.status !== ERROR_CODE.INTERNAL_SERVER_ERROR) {
@@ -57,15 +67,6 @@ app.use((error, req, res, next) => {
     .send({ message: `${ERROR_MESSAGE.INTERNAL_SERVER_ERROR}` });
   next();
 });
-
-app.use((req, res) => {
-  res.status(ERROR_CODE.NOT_FOUND).send({ message: ERROR_MESSAGE.NOT_FOUND });
-});
-
-// routers
-app.use(usersRouter);
-
-app.use(cardsRouter);
 
 // connect port
 app.listen(PORT, () => {
